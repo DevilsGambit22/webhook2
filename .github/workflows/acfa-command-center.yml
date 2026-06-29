@@ -1,1 +1,76 @@
+name: ACFA Command Center
 
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: "ACFA update type"
+        required: true
+        default: "General Club Announcement"
+        type: choice
+        options:
+          - Welcome New Members
+          - New Tournament
+          - Club Match Announcement
+          - Puzzle of the Week
+          - Member Spotlight
+          - General Club Announcement
+          - Chess Tip of the Week
+          - Vote Chess Update
+          - Upcoming Events
+          - Important Notice
+      title:
+        description: "Title"
+        required: true
+        default: "And Chess For All"
+      message:
+        description: "Main message"
+        required: true
+        default: "Every Player Belongs. Every Move Matters."
+      link:
+        description: "Optional link"
+        required: false
+        default: ""
+
+jobs:
+  send-acfa-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send ACFA Discord Update
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.DISCORD_ACFA_ANNOUNCEMENTS }}
+          method: POST
+          customHeaders: '{"Content-Type":"application/json"}'
+          data: |
+            {
+              "username": "♟️ ACFA Communications",
+              "embeds": [
+                {
+                  "title": "♟️ ${{ github.event.inputs.title }}",
+                  "description": "${{ github.event.inputs.message }}",
+                  "color": 16766720,
+                  "fields": [
+                    {
+                      "name": "Update Type",
+                      "value": "${{ github.event.inputs.type }}",
+                      "inline": true
+                    },
+                    {
+                      "name": "Club Motto",
+                      "value": "Every Player Belongs. Every Move Matters.",
+                      "inline": false
+                    },
+                    {
+                      "name": "Link",
+                      "value": "${{ github.event.inputs.link }}",
+                      "inline": false
+                    }
+                  ],
+                  "footer": {
+                    "text": "And Chess For All • ACFA Communications"
+                  }
+                }
+              ]
+            }
